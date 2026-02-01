@@ -77,7 +77,7 @@ export default function Dashboard() {
   };
 
   const copyToClipboard = (shortCode: string) => {
-    const url = `http://localhost:4000/re/${shortCode}`;
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/re/${shortCode}`;
     navigator.clipboard.writeText(url);
     toast.success("Copied to clipboard!");
   };
@@ -109,7 +109,7 @@ export default function Dashboard() {
           </div>
         ) : links.length === 0 ? (
           <div className="p-12 text-center text-gray-500">
-            You haven't created any links yet.
+            You haven&apos;t created any links yet.
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
@@ -122,7 +122,7 @@ export default function Dashboard() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <a
-                      href={`http://localhost:4000/re/${link.shortCode}`}
+                      href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/re/${link.shortCode}`}
                       target="_blank"
                       rel="noreferrer"
                       className="text-lg font-bold text-gray-900 hover:text-blue-600 hover:underline truncate transition-colors"

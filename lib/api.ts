@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:4000/v1",
+  baseURL: `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1`,
 });
 
 API.interceptors.request.use((req) => {
