@@ -1,36 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SHRN - Frontend
 
-## Getting Started
+A modern, minimal, and powerful URL shortener frontend built with Next.js, Tailwind CSS, and Recharts.
 
-First, run the development server:
+![SHRN Screenshot](https://via.placeholder.com/800x400?text=SHRN+Dashboard+Preview)
+
+## 🚀 Features
+
+- **Authentication**: Secure user Sign Up and Sign In flows efficiently managed with JWT.
+- **Dashboard**: Centralized hub to manage all your short links.
+- **Link Creation**: Create short links instantly with optional expiration dates.
+- **Analytics**: Visualize click data by Browser, Device, and Country using interactive charts.
+- **Modern UI**: Clean, minimal light theme with a focus on usability and performance.
+- **Responsive Design**: Fully optimized for desktops, tablets, and mobile devices.
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
+- **Language**: TypeScript
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Icons**: React Icons
+- **Charts**: [Recharts](https://recharts.org/)
+- **HTTP Client**: Axios
+- **Notifications**: React Hot Toast
+- **Runtime**: Bun
+
+## 📂 Project Structure
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+frontend/
+├── app/                  # Application routes and pages (App Router)
+│   ├── auth/             # Authentication pages (signin, signup)
+│   ├── dashboard/        # Protected dashboard page
+│   ├── layout.tsx        # Root layout with providers
+│   └── page.tsx          # Landing page
+├── components/           # Reusable UI components
+│   ├── dashboard/        # Dashboard-specific widgets (Charts, CreateLink)
+│   └── ui/               # Core UI elements (Button, Input, Modals)
+├── context/              # React Context (AuthContext)
+├── lib/                  # Utilities and API configuration
+└── public/               # Static assets
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ⚡ Getting Started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prerequisites
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Bun** (v1.0 or later) or Node.js
+- Backend server running on port `4000`
 
-## Learn More
+### Installation
 
-To learn more about Next.js, take a look at the following resources:
+1.  Clone the repository:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+    ```bash
+    git clone https://github.com/yourusername/shrn-v3.git
+    cd shrn-v3/frontend
+    ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2.  Install dependencies:
 
-## Deploy on Vercel
+    ```bash
+    bun install
+    ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3.  Set up environment variables (if needed, defaults usually work for local dev).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4.  Run the development server:
+
+    ```bash
+    bun dev
+    ```
+
+5.  Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## 🔒 Authentication
+
+The application uses token-based authentication.
+
+- **Sign Up**: Creates a new user account.
+- **Sign In**: Retrieves a JWT token which is stored in `localStorage`.
+- **Route Protection**: The `/dashboard` route is protected; unauthenticated users are redirected to the sign-in page.
+
+## 📊 Analytics
+
+Each link has a dedicated analytics view showing:
+
+- **Total Clicks**: Aggregate click count.
+- **Charts**: Visual breakdown by:
+  - Browsers (Chrome, Firefox, etc.)
+  - Devices (Desktop, Mobile, etc.)
+  - Countries
+
+## 🎨 Design System
+
+The project strictly follows a **Minimal Light Theme**:
+
+- **Colors**: Slate/Gray scale for text, White backgrounds, Subtle borders.
+- **Typography**: Geist Sans & Mono.
+- **Components**: Custom-built accessible components (Buttons, Inputs, Modals).
+
+---
+
+Built with ❤️ for SHRN.
