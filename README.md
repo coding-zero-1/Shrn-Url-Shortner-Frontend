@@ -2,7 +2,7 @@
 
 A modern, minimal, and powerful URL shortener frontend built with Next.js, Tailwind CSS, and Recharts.
 
-![SHRN Screenshot](https://via.placeholder.com/800x400?text=SHRN+Dashboard+Preview)
+![SHRN Screenshot](https://res.cloudinary.com/ddr9b8ovi/image/upload/v1769961843/shrn_screenshot_wb6dkm.png)
 
 ## 🚀 Features
 
