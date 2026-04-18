@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { FaChartBar, FaTrash, FaCopy } from "react-icons/fa";
 import API from "@/lib/api";
@@ -42,7 +43,7 @@ export default function Dashboard() {
     try {
       const res = await API.get("/shortLink/getAllShortLinks");
       setLinks(res.data.data);
-    } catch (error) {
+    } catch {
       setLinks([]);
     } finally {
       setFetchingLinks(false);
@@ -67,7 +68,7 @@ export default function Dashboard() {
       await API.delete(`/shortLink/deleteShortLink/${linkToDelete}`);
       toast.success("Link deleted");
       fetchLinks();
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete link");
     } finally {
       setDeleting(false);
@@ -88,80 +89,86 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-        <p className="text-gray-600">
-          Manage your short links and view analytics.
-        </p>
-      </div>
+    <div className="mx-auto max-w-5xl">
+      <motion.div
+        initial={{ y: 18, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="mb-6 rounded-3xl border border-slate-200 bg-white/95 px-6 py-5 shadow-[0_20px_55px_rgba(15,23,42,0.12)] sm:mb-8"
+      >
+        <h1 className="font-display text-3xl font-semibold text-slate-950 sm:text-4xl">
+          Dashboard
+        </h1>
+        <p className="mt-2 text-slate-700">Manage your short links and view analytics.</p>
+      </motion.div>
 
       <CreateLink onLinkCreated={fetchLinks} />
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-6 border-b border-gray-200 bg-gray-50/50">
-          <h2 className="text-lg font-semibold text-gray-900">Your Links</h2>
+      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white/95 shadow-[0_20px_55px_rgba(15,23,42,0.12)]">
+        <div className="border-b border-slate-200 px-6 py-4">
+          <h2 className="font-display text-lg font-semibold text-slate-950">Your Links</h2>
         </div>
 
         {fetchingLinks ? (
-          <div className="p-12 flex justify-center">
-            <span className="animate-spin h-8 w-8 border-4 border-gray-900 border-t-transparent rounded-full" />
+          <div className="flex justify-center p-12">
+            <span className="h-8 w-8 animate-spin rounded-full border-4 border-slate-500 border-t-transparent" />
           </div>
         ) : links.length === 0 ? (
-          <div className="p-12 text-center text-gray-500">
+          <div className="p-12 text-center text-slate-600">
             You haven&apos;t created any links yet.
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
-            {links.map((link) => (
-              <div
+          <div className="divide-y divide-slate-100">
+            {links.map((link, index) => (
+              <motion.div
                 key={link.id}
-                className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:bg-gray-50 transition-colors"
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: index * 0.04, ease: "easeOut" }}
+                className="flex flex-col gap-4 px-6 py-5 transition-colors hover:bg-slate-50 md:flex-row md:items-center md:justify-between"
                 title={link.originalUrl}
               >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1 flex items-center gap-2">
                     <a
                       href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/re/${link.shortCode}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-lg font-bold text-gray-900 hover:text-blue-600 hover:underline truncate transition-colors"
+                      className="truncate font-display text-lg font-semibold text-slate-900 transition-colors hover:text-slate-950 hover:underline"
                     >
                       /{link.shortCode}
                     </a>
                     <button
                       onClick={() => copyToClipboard(link.shortCode)}
-                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      className="text-slate-500 transition-colors hover:text-slate-800"
                       title="Copy"
                     >
                       <FaCopy />
                     </button>
                   </div>
-                  <p className="text-sm text-gray-500 truncate max-w-md">
-                    {link.originalUrl}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="max-w-2xl truncate text-sm text-slate-700">{link.originalUrl}</p>
+                  <p className="mt-1 text-xs text-slate-500">
                     {new Date(link.createdAt).toLocaleDateString()}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex shrink-0 items-center gap-2">
                   <Button
                     variant="secondary"
-                    className="text-sm bg-white border border-gray-200 shadow-sm hover:bg-gray-50"
+                    className="text-sm"
                     onClick={() => setSelectedLinkId(link.id)}
                   >
                     <FaChartBar className="mr-2" /> Analytics
                   </Button>
                   <Button
                     variant="ghost"
-                    className="text-red-500 hover:bg-red-50 hover:text-red-700 text-sm"
+                    className="text-sm text-rose-600 hover:bg-rose-50 hover:text-rose-700"
                     onClick={() => promptDelete(link.id)}
                   >
                     <FaTrash />
                   </Button>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}

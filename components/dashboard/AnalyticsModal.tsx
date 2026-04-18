@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   BarChart,
   Bar,
@@ -20,93 +21,113 @@ interface AnalyticsModalProps {
   onClose: () => void;
 }
 
+interface CountData {
+  count: number;
+  [key: string]: string | number;
+}
+
+interface AnalyticsData {
+  totalClicks: number;
+  clicksByCountry: CountData[];
+  clicksByDevice: CountData[];
+  clicksByBrowser: CountData[];
+}
+
 const AnalyticsModal: React.FC<AnalyticsModalProps> = ({
   shortLinkId,
   isOpen,
   onClose,
 }) => {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (isOpen && shortLinkId) {
-      fetchAnalytics();
-    }
-  }, [isOpen, shortLinkId]);
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await API.get(
-        `/shortLink/getShortLinkAnalytics/${shortLinkId}`,
-      );
+      const res = await API.get(`/shortLink/getShortLinkAnalytics/${shortLinkId}`);
       setData(res.data.data);
     } catch (error) {
       console.error("Failed to fetch analytics", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [shortLinkId]);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (isOpen && shortLinkId) {
+      fetchAnalytics();
+    }
+  }, [isOpen, shortLinkId, fetchAnalytics]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-gray-200">
-        <div className="p-6 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
-          <h2 className="text-xl font-bold text-gray-900">Analytics</h2>
-          <Button variant="ghost" onClick={onClose}>
-            Close
-          </Button>
-        </div>
-
-        <div className="p-6">
-          {loading ? (
-            <div className="flex justify-center p-12">
-              <span className="animate-spin h-8 w-8 border-4 border-gray-900 border-t-transparent rounded-full" />
+    <AnimatePresence>
+      {isOpen ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm"
+        >
+          <motion.div
+            initial={{ y: 24, opacity: 0, scale: 0.98 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: 16, opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.26, ease: "easeOut" }}
+            className="section-shell max-h-[90vh] w-full max-w-5xl overflow-y-auto"
+          >
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-600/30 bg-slate-950/65 px-6 py-4 backdrop-blur-xl">
+              <h2 className="font-display text-xl font-semibold text-slate-50">Analytics</h2>
+              <Button variant="ghost" onClick={onClose}>
+                Close
+              </Button>
             </div>
-          ) : data ? (
-            <div className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <StatCard title="Total Clicks" value={data.totalClicks} />
-                <StatCard
-                  title="Countries"
-                  value={data.clicksByCountry.length}
-                />
-                <StatCard title="Devices" value={data.clicksByDevice.length} />
-              </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <ChartSection
-                  title="Clicks by Browser"
-                  data={data.clicksByBrowser}
-                  dataKey="browser"
-                />
-                <ChartSection
-                  title="Clicks by Device"
-                  data={data.clicksByDevice}
-                  dataKey="device"
-                />
-                <ChartSection
-                  title="Clicks by Country"
-                  data={data.clicksByCountry}
-                  dataKey="country"
-                />
-              </div>
+            <div className="p-6">
+              {loading ? (
+                <div className="flex justify-center p-12">
+                  <span className="h-8 w-8 animate-spin rounded-full border-4 border-cyan-200 border-t-transparent" />
+                </div>
+              ) : data ? (
+                <div className="space-y-8">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <StatCard title="Total Clicks" value={data.totalClicks} />
+                    <StatCard title="Countries" value={data.clicksByCountry.length} />
+                    <StatCard title="Devices" value={data.clicksByDevice.length} />
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    <ChartSection
+                      title="Clicks by Browser"
+                      data={data.clicksByBrowser}
+                      dataKey="browser"
+                    />
+                    <ChartSection
+                      title="Clicks by Device"
+                      data={data.clicksByDevice}
+                      dataKey="device"
+                    />
+                    <ChartSection
+                      title="Clicks by Country"
+                      data={data.clicksByCountry}
+                      dataKey="country"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <p className="py-8 text-center text-slate-300">No data available.</p>
+              )}
             </div>
-          ) : (
-            <p className="text-center text-gray-500">No data available.</p>
-          )}
-        </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
   );
 };
 
 const StatCard = ({ title, value }: { title: string; value: number }) => (
-  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-    <p className="text-sm text-gray-500">{title}</p>
-    <p className="text-2xl font-bold text-gray-900">{value}</p>
+  <div className="glass-panel p-4">
+    <p className="text-sm text-slate-400">{title}</p>
+    <p className="font-display text-2xl font-semibold text-slate-50">{value}</p>
   </div>
 );
 
@@ -116,51 +137,45 @@ const ChartSection = ({
   dataKey,
 }: {
   title: string;
-  data: any[];
+  data: CountData[];
   dataKey: string;
 }) => {
-  const colors = ["#1f2937", "#4b5563", "#6b7280", "#9ca3af", "#d1d5db"];
+  const colors = ["#7dd3fc", "#38bdf8", "#0ea5e9", "#0284c7", "#0369a1"];
 
   return (
-    <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-      <h3 className="text-lg font-semibold mb-4 text-gray-900">{title}</h3>
+    <div className="glass-panel p-4">
+      <h3 className="font-display mb-4 text-lg font-semibold text-slate-50">{title}</h3>
       {data.length > 0 ? (
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} layout="vertical">
-              <CartesianGrid
-                strokeDasharray="3 3"
-                horizontal={false}
-                stroke="#e5e7eb"
-              />
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#334155" />
               <XAxis type="number" hide />
               <YAxis
                 dataKey={dataKey}
                 type="category"
-                width={80}
-                tick={{ fontSize: 12, fill: "#374151" }}
+                width={90}
+                tick={{ fontSize: 12, fill: "#cbd5e1" }}
               />
               <Tooltip
                 contentStyle={{
-                  borderRadius: "8px",
-                  border: "1px solid #e5e7eb",
-                  boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(148,163,184,0.22)",
+                  backgroundColor: "rgba(15,23,39,0.92)",
+                  color: "#f8fafc",
                 }}
-                cursor={{ fill: "transparent" }}
+                cursor={{ fill: "rgba(148,163,184,0.08)" }}
               />
-              <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-                {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={colors[index % colors.length]}
-                  />
+              <Bar dataKey="count" radius={[0, 8, 8, 0]}>
+                {data.map((_, index) => (
+                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="h-64 flex items-center justify-center text-gray-500 text-sm">
+        <div className="flex h-64 items-center justify-center text-sm text-slate-400">
           No data
         </div>
       )}

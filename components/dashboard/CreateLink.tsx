@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { motion } from "framer-motion";
+import axios from "axios";
 import toast from "react-hot-toast";
 import API from "@/lib/api";
 import Button from "../ui/Button";
@@ -27,25 +29,35 @@ const CreateLink: React.FC<CreateLinkProps> = ({ onLinkCreated }) => {
       setOriginalUrl("");
       setExpiresAt("");
       onLinkCreated();
-    } catch (error: any) {
-      toast.error(error.response?.data?.msg || "Failed to create link");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.msg || "Failed to create link");
+      } else {
+        toast.error("Failed to create link");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
-      <h2 className="text-lg font-semibold mb-4 text-gray-900">
+    <motion.div
+      initial={{ y: 18, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
+      className="mb-6 rounded-3xl border border-slate-200 bg-white/95 p-5 shadow-[0_20px_55px_rgba(15,23,42,0.12)] sm:mb-8 sm:p-6"
+    >
+      <h2 className="font-display mb-4 text-lg font-semibold text-slate-950">
         Create New Short Link
       </h2>
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col sm:flex-row gap-4 items-end"
+        className="flex flex-col gap-4 md:flex-row md:items-end"
       >
         <div className="flex-1 w-full">
           <Input
             label="Destination URL"
+            labelClassName="text-slate-800"
             placeholder="https://example.com/very-long-url"
             value={originalUrl}
             onChange={(e) => setOriginalUrl(e.target.value)}
@@ -53,9 +65,10 @@ const CreateLink: React.FC<CreateLinkProps> = ({ onLinkCreated }) => {
             type="url"
           />
         </div>
-        <div className="w-full sm:w-48 shrink-0">
+        <div className="w-full md:w-56 shrink-0">
           <Input
             label="Expires (Optional)"
+            labelClassName="text-slate-800"
             type="datetime-local"
             value={expiresAt}
             onChange={(e) => setExpiresAt(e.target.value)}
@@ -65,12 +78,12 @@ const CreateLink: React.FC<CreateLinkProps> = ({ onLinkCreated }) => {
         <Button
           type="submit"
           isLoading={loading}
-          className="w-full sm:w-auto shrink-0"
+          className="w-full md:w-auto shrink-0"
         >
           Shorten
         </Button>
       </form>
-    </div>
+    </motion.div>
   );
 };
 
